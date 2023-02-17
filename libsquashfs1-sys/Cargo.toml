@@ -1,0 +1,18 @@
+[package]
+name = "libsquashfs1-sys"
+version = "0.1.0"
+edition = "2021"
+links = "squashfs1"
+keywords = ["squashfs", "squashfs-tools", "libsquashfs"]
+categories = ["external-ffi-bindings", "filesystem"]
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+pkg-config = "0.3.7"
+bindgen = "0.64.0"
+
+[features]
+static = []
+
