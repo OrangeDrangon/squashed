@@ -1,0 +1,22 @@
+[package]
+name = "squashed"
+version = "0.1.0"
+edition = "2021"
+keywords = ["squashfs", "squashfs-tools", "libsquashfs"]
+categories = ["api-bindings", "filesystem"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+derive_more = "0.99.17"
+libsquashfs1-sys = { path = "libsquashfs1-sys" }
+num-derive = "0.3.3"
+num-traits = "0.2.15"
+thiserror = "1.0.38"
+
+[dev-dependencies]
+tempfile = "3.3.0"
+
+[features]
+default = []
+static = ["libsquashfs1-sys/static"]
