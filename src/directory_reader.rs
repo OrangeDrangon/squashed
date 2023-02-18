@@ -3,6 +3,8 @@ use std::marker::PhantomData;
 use std::path::Path;
 use std::ptr::{self, NonNull};
 
+use libsquashfs1_sys::ffi::sqfs_dir_tree_destroy;
+
 use crate::compressor::Compressor;
 use crate::ffi::sqfs_tree_node_t;
 use crate::ffi::{sqfs_dir_reader_create, sqfs_dir_reader_get_full_hierarchy, sqfs_dir_reader_t};
@@ -17,6 +19,10 @@ use crate::Result;
 /// Safe wrapper for [sqfs_dir_reader_t]
 pub struct DirectoryReader {
     ptr: ManagedPointer<sqfs_dir_reader_t>,
+}
+
+fn sqfs_diriectory_tree_destroy(root: *mut sqfs_tree_node_t) {
+    unsafe { sqfs_dir_tree_destroy(root) };
 }
 
 impl DirectoryReader {
@@ -66,8 +72,12 @@ impl DirectoryReader {
             )
         };
 
-        ManagedPointer::init_ptr(&init, "Creating DirectoryTree", crate::sqfs_destroy)
-            .map(|tree_node| DirectoryTree { tree_node })
+        ManagedPointer::init_ptr(
+            &init,
+            "Creating DirectoryTree",
+            sqfs_diriectory_tree_destroy,
+        )
+        .map(|tree_node| DirectoryTree { tree_node })
     }
 }
 
