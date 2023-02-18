@@ -1,10 +1,8 @@
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::ToPrimitive;
 
-use libsquashfs1_sys::ffi::SQFS_COMPRESSOR::{
-    SQFS_COMP_GZIP, SQFS_COMP_LZ4, SQFS_COMP_LZMA, SQFS_COMP_LZO, SQFS_COMP_XZ, SQFS_COMP_ZSTD,
-};
-
+use crate::ffi::SQFS_COMPRESSOR::*;
+pub use crate::ffi::SQFS_COMP_FLAG;
 use crate::ffi::{
     sqfs_compressor_config_init, sqfs_compressor_config_t, sqfs_compressor_create,
     sqfs_compressor_t,
@@ -13,7 +11,7 @@ use crate::super_block::SuperBlock;
 use crate::{ManagedPointer, Result};
 
 /// The type of compression used in the image.
-#[derive(Debug, FromPrimitive, ToPrimitive)]
+#[derive(Debug, FromPrimitive, ToPrimitive, Eq, PartialEq)]
 #[repr(u32)]
 pub enum CompressorType {
     GZip = SQFS_COMP_GZIP,
@@ -31,22 +29,20 @@ pub struct CompressorConfig {
 
 impl CompressorConfig {
     /// Safe wrapper for [sqfs_compressor_config_init]
-    pub fn new(super_block: &SuperBlock) -> Result<Self> {
-        let mut compressor_config = Default::default();
-
-        let code = unsafe {
+    pub fn new(super_block: &SuperBlock, flags: SQFS_COMP_FLAG) -> Result<Self> {
+        let init = |ptr| unsafe {
             sqfs_compressor_config_init(
-                &mut compressor_config,
+                ptr,
                 super_block
                     .compression_id()
                     .to_u32()
                     .expect("invalid compression type"),
-                super_block.block_size() as usize,
-                super_block.flags(),
+                usize::try_from(super_block.block_size()).expect("blocksize should fit in a usize"),
+                u16::try_from(flags.0).expect("flags should fit in u16"),
             )
         };
 
-        crate::sqfs_check(code, "Initializing CompressorConfig")?;
+        let compressor_config = crate::sqfs_init(&init, "Initializing CompressorConfig")?;
 
         Ok(Self { compressor_config })
     }
