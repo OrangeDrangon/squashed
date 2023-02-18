@@ -1,4 +1,4 @@
-use std::ffi::c_void;
+use std::ffi::{c_char, c_void, CStr};
 use std::path::Path;
 
 pub use crate::ffi::SQFS_FILE_OPEN_FLAGS;
@@ -13,13 +13,9 @@ pub struct File {
 impl File {
     /// Safe wrapper for [sqfs_open_file]
     pub fn new<P: AsRef<Path>>(path: P, flags: SQFS_FILE_OPEN_FLAGS) -> Result<Self> {
-        let path = path
-            .as_ref()
-            .to_str()
-            .ok_or(SqfsError::PathToStr(path.as_ref().to_path_buf()))?
-            .as_ptr() as *const i8;
-
-        let init = || unsafe { sqfs_open_file(path, flags.0) };
+        let bytes = crate::path_to_c_str(path);
+        let path_ptr = bytes.as_ptr() as *const c_char;
+        let init = || unsafe { sqfs_open_file(path_ptr, flags.0) };
 
         ManagedPointer::check_null(&init, "Opening file", crate::sqfs_destroy)
             .map(|ptr| Self { ptr })

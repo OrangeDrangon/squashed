@@ -1,6 +1,6 @@
 use std::ffi::OsString;
 use std::mem::MaybeUninit;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::ptr;
 use std::ptr::NonNull;
 
@@ -401,4 +401,33 @@ impl<T> ManagedPointer<T> {
             .ok_or(SqfsError::LibraryNullError(err.to_string()))
             .map(|ptr| Self { ptr, destroy })
     }
+}
+
+fn path_to_c_str<P: AsRef<Path>>(path: P) -> Box<[u8]> {
+    let path = path.as_ref();
+    let mut buf = Vec::new();
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStrExt;
+        buf.extend(path.as_os_str().as_bytes());
+        buf.push(0);
+    }
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::ffi::OsStrExt;
+        buf.extend(
+            path.as_os_str()
+                .encode_wide()
+                .chain(Some(0))
+                .map(|b| {
+                    let b = b.to_ne_bytes();
+                    b.get(0).map(|s| *s).into_iter().chain(b.get(1).map(|s| *s))
+                })
+                .flatten(),
+        );
+    }
+
+    buf.into_boxed_slice()
 }

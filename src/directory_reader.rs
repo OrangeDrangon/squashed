@@ -1,4 +1,4 @@
-use std::ffi::CStr;
+use std::ffi::{c_char, CStr};
 use std::marker::PhantomData;
 use std::path::Path;
 use std::ptr::{self, NonNull};
@@ -49,11 +49,9 @@ impl DirectoryReader {
         path: Option<P>,
         flags: SQFS_TREE_FILTER_FLAGS,
     ) -> Result<DirectoryTree> {
-        let path = if let Some(path) = path {
-            path.as_ref()
-                .to_str()
-                .ok_or(SqfsError::PathToStr(path.as_ref().to_path_buf()))?
-                .as_ptr() as *const i8
+        let bytes = path.map(|p| crate::path_to_c_str(p));
+        let path_ptr = if let Some(bytes_inside) = &bytes {
+            bytes_inside.as_ptr() as *const c_char
         } else {
             ptr::null()
         };
@@ -62,7 +60,7 @@ impl DirectoryReader {
             sqfs_dir_reader_get_full_hierarchy(
                 self.ptr.as_ptr(),
                 id_table.ptr().as_ptr(),
-                path,
+                path_ptr,
                 flags.0,
                 ptr,
             )
