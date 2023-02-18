@@ -12,7 +12,7 @@ pub struct File {
 
 impl File {
     /// Safe wrapper for [sqfs_open_file]
-    pub fn new<P: AsRef<Path>>(path: P, flags: SQFS_FILE_OPEN_FLAGS) -> Result<Self> {
+    pub fn open<P: AsRef<Path>>(path: P, flags: SQFS_FILE_OPEN_FLAGS) -> Result<Self> {
         let bytes = crate::path_to_c_str(path);
         let path_ptr = bytes.as_ptr() as *const c_char;
         let init = || unsafe { sqfs_open_file(path_ptr, flags.0) };

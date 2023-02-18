@@ -4,7 +4,7 @@ use squashed::file::File;
 #[test]
 fn open_file() {
     assert!(
-        File::new(
+        File::open(
             "../deltagen/imgs/new.img",
             SQFS_FILE_OPEN_FLAGS::SQFS_FILE_OPEN_READ_ONLY,
         )
