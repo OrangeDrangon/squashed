@@ -71,7 +71,7 @@ impl DirectoryReader {
             )
         };
 
-        ManagedPointer::init_ptr(&init, "Creating DirectoryTree", sqfs_directorytree_destroy)
+        ManagedPointer::init_ptr(&init, "Creating DirectoryTree", sqfs_directory_tree_destroy)
             .map(|tree_node| DirectoryTree { tree_node })
     }
 }
