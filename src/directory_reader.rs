@@ -11,8 +11,8 @@ use crate::file::File;
 use crate::id::IdTable;
 use crate::inode::INode;
 use crate::super_block::SuperBlock;
+use crate::ManagedPointer;
 use crate::Result;
-use crate::{ManagedPointer, SqfsError};
 
 /// Safe wrapper for [sqfs_dir_reader_t]
 pub struct DirectoryReader {

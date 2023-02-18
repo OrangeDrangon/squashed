@@ -1,9 +1,9 @@
-use std::ffi::{c_char, c_void, CStr};
+use std::ffi::{c_char, c_void};
 use std::path::Path;
 
 pub use crate::ffi::SQFS_FILE_OPEN_FLAGS;
 use crate::ffi::{sqfs_file_t, sqfs_open_file};
-use crate::{ManagedPointer, Result, SqfsError};
+use crate::{ManagedPointer, Result};
 
 /// Safe wrapper for [sqfs_file_t].
 pub struct File {
