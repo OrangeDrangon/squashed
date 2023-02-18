@@ -21,7 +21,7 @@ pub struct DirectoryReader {
     ptr: ManagedPointer<sqfs_dir_reader_t>,
 }
 
-fn sqfs_diriectory_tree_destroy(root: *mut sqfs_tree_node_t) {
+fn sqfs_directorytree_destroy(root: *mut sqfs_tree_node_t) {
     unsafe { sqfs_dir_tree_destroy(root) };
 }
 
@@ -72,12 +72,8 @@ impl DirectoryReader {
             )
         };
 
-        ManagedPointer::init_ptr(
-            &init,
-            "Creating DirectoryTree",
-            sqfs_diriectory_tree_destroy,
-        )
-        .map(|tree_node| DirectoryTree { tree_node })
+        ManagedPointer::init_ptr(&init, "Creating DirectoryTree", sqfs_directorytree_destroy)
+            .map(|tree_node| DirectoryTree { tree_node })
     }
 }
 
