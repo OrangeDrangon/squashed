@@ -431,3 +431,27 @@ fn path_to_c_str<P: AsRef<Path>>(path: P) -> Box<[u8]> {
 
     buf.into_boxed_slice()
 }
+
+trait InternalBlockSize {
+    fn internal_size(&self) -> u32;
+}
+
+pub trait BlockAttributes {
+    fn size(&self) -> u32;
+    fn is_compressed(&self) -> bool;
+    fn is_sparse(&self) -> bool;
+}
+
+impl<T: InternalBlockSize> BlockAttributes for T {
+    fn size(&self) -> u32 {
+        (self.internal_size()) & ((1 << 24) - 1)
+    }
+
+    fn is_compressed(&self) -> bool {
+        ((self.internal_size()) & (1 << 24)) == 0
+    }
+
+    fn is_sparse(&self) -> bool {
+        self.size() == 0
+    }
+}

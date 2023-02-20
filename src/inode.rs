@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 use std::mem::size_of;
 use std::ptr::{slice_from_raw_parts, NonNull};
 
+use crate::BlockAttributes;
 use derive_more::Deref;
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::FromPrimitive;
@@ -293,7 +294,7 @@ impl<'a> Iterator for Blocks<'a> {
             .get(self.index)
             .map(|&size| Block::new(self.start_offset, size));
         if let Some(block) = &block {
-            self.start_offset += u64::from(block.on_disk_size());
+            self.start_offset += u64::from(block.size());
         }
 
         self.index += 1;
