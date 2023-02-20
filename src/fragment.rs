@@ -7,7 +7,7 @@ use crate::ffi::{
 };
 use crate::file::File;
 use crate::super_block::SuperBlock;
-use crate::{ManagedPointer, Result};
+use crate::{InternalBlockSize, ManagedPointer, Result};
 
 /// Safe wrapper for [sqfs_frag_table_t]
 pub struct FragmentTable {
@@ -127,10 +127,13 @@ impl Fragment {
     pub fn start_offset(&self) -> u64 {
         self.fragment.start_offset
     }
-    pub fn size(&self) -> u32 {
-        self.fragment.size
-    }
     pub fn pad0(&self) -> u32 {
         self.fragment.pad0
+    }
+}
+
+impl InternalBlockSize for Fragment {
+    fn internal_size(&self) -> u32 {
+        self.fragment.size
     }
 }
